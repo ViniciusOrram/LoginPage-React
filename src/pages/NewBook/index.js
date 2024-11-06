@@ -8,7 +8,7 @@ import logoImage from '../../assets/logo.svg'
 
 export default function NewBook(){
     return(
-        <div className="new-book-containter">
+        <div className="new-book-container">
             <div className="content">
                 <section className="form">
                     <img src={logoImage} alt="Vinicius"/>
