@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {Link, useNavigate} from 'react-router-dom';
+import React, {useEffect, useState} from "react";
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import { FiArrowLeft } from "react-icons/fi";
 
 import api from '../../services/api';
@@ -10,12 +10,45 @@ import logoImage from '../../assets/logo.svg'
 
 export default function NewBook(){
 
+    const [id, setId] = useState(null);
     const [author, setAuthor] = useState('');
     const [title, setTitle] = useState('');
     const [launchDate, setLaunchDate] = useState('');
     const [price, setPrice] = useState('');
 
+    const {bookId} = useParams();
+
     const navigate = useNavigate();
+
+    const accessToken = localStorage.getItem('accessToken');
+
+    const authorization = {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    }
+
+    useEffect(() => {
+        if(bookId === '0') return;
+        else loadBook();
+    }, bookId);
+
+    async function loadBook(){
+        try {
+            const response = await api.get(`api/book/v1/${bookId}`, authorization)
+
+            let adjustedDate = response.data.launchDate.split("T", 10)[0];
+
+            setId(response.data.id);
+            setTitle(response.data.title);
+            setAuthor(response.data.author);
+            setPrice(response.data.price);
+            setLaunchDate(adjustedDate);
+        } catch (error) {
+            alert('Error recovering book! Try again')
+            navigate('/books')
+        }
+    }
 
     async function createNewBook(e){
         e.preventDefault();
@@ -27,14 +60,8 @@ export default function NewBook(){
             price,
         }
 
-        const accessToken = localStorage.getItem('accessToken');
-
         try {
-            await api.post('api/Book/v1', data, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            });
+            await api.post('api/Book/v1', data, authorization);
         } catch (error) {
             alert('Error while recording book! Try again')
         }
