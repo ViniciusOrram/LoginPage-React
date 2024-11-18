@@ -50,7 +50,7 @@ export default function NewBook(){
         }
     }
 
-    async function createNewBook(e){
+    async function saveOrUpdate(e){
         e.preventDefault();
 
         const data = {
@@ -61,7 +61,12 @@ export default function NewBook(){
         }
 
         try {
-            await api.post('api/Book/v1', data, authorization);
+            if(bookId === '0'){
+                await api.post('api/Book/v1', data, authorization);
+            } else{
+                data.id = id;
+                await api.put('api/Book/v1', data, authorization);
+            }
         } catch (error) {
             alert('Error while recording book! Try again')
         }
@@ -75,15 +80,15 @@ export default function NewBook(){
             <div className="content">
                 <section className="form">
                     <img src={logoImage} alt="Vinicius"/>
-                    <h1>Add New Book</h1>
-                    <p>Enter the book information and click on 'Add'</p>
+                    <h1>{bookId === '0' ? 'Add New' : 'Update'}Book</h1>
+                    <p>Enter the book information and click on {bookId === '0' ? `'Add'` : `'Update'`}</p>
                     <Link className="back-link" to="/books">
                         <FiArrowLeft size={16} color="#251fc5"/>
-                        Home
+                        Back to Books
                     </Link>
                 </section>
 
-                <form onSubmit={createNewBook}>
+                <form onSubmit={saveOrUpdate}>
                     <input 
                         placeholder="Title"
                         value={title}
@@ -105,7 +110,7 @@ export default function NewBook(){
                         onChange={e => setPrice(e.target.value)}
                      />
 
-                    <button className="button" type="submit">Add</button>
+                    <button className="button" type="submit">{bookId === '0' ? 'Add' : 'Update'}</button>
                 </form>
             </div>
         </div>
